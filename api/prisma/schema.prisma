@@ -1,7 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-  moduleFormat = "esm"
+  provider            = "prisma-client"
+  output              = "../generated/prisma"
+  moduleFormat        = "esm"
   importFileExtension = "js"
 }
 
@@ -23,6 +23,7 @@ model users {
   email                     String                       @unique
   password                  String
   created_at                DateTime                     @default(now())
+  isAdmin                   Boolean                      @default(false)
   organizationRelationships organization_relationships[]
   projectMembers            project_members[]
   features                  features[]
@@ -32,7 +33,7 @@ model organization_relationships {
   id              String        @id @default(uuid())
   organization_id String
   user_id         String
-  role            Role
+  role            String
   created_at      DateTime      @default(now())
   organization    organizations @relation(fields: [organization_id], references: [id])
   user            users         @relation(fields: [user_id], references: [id])
@@ -53,14 +54,15 @@ model projects {
 }
 
 model project_members {
-  id         String   @id @default(uuid())
-  project_id String
-  user_id    String
-  role       String
-  joined_at  DateTime @default(now())
-  created_at DateTime @default(now())
-  project    projects @relation(fields: [project_id], references: [id])
-  user       users    @relation(fields: [user_id], references: [id])
+  id           String   @id @default(uuid())
+  project_id   String
+  user_id      String
+  project_role String
+  role         Role
+  joined_at    DateTime @default(now())
+  created_at   DateTime @default(now())
+  project      projects @relation(fields: [project_id], references: [id])
+  user         users    @relation(fields: [user_id], references: [id])
 }
 
 model features {
@@ -88,7 +90,6 @@ model milestones {
 }
 
 enum Role {
-  ADMIN
   PROJECT_MANAGER
   MEMBER
   GUEST

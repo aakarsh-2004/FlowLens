@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'PROJECT_MANAGER', 'MEMBER', 'GUEST');
+CREATE TYPE "Role" AS ENUM ('PROJECT_MANAGER', 'MEMBER', 'GUEST');
 
 -- CreateTable
 CREATE TABLE "organizations" (
@@ -17,6 +17,7 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isAdmin" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -26,7 +27,7 @@ CREATE TABLE "organization_relationships" (
     "id" TEXT NOT NULL,
     "organization_id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "role" "Role" NOT NULL,
+    "role" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "organization_relationships_pkey" PRIMARY KEY ("id")
@@ -51,7 +52,8 @@ CREATE TABLE "project_members" (
     "id" TEXT NOT NULL,
     "project_id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "role" TEXT NOT NULL,
+    "project_role" TEXT NOT NULL,
+    "role" "Role" NOT NULL,
     "joined_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
