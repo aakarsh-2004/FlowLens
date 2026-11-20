@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,6 +5,89 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
+model organizations {
+  id                         String                       @id @default(uuid())
+  name                       String
+  created_at                 DateTime                     @default(now())
+  organization_relationships organization_relationships[]
+  projects                   projects[]
+}
+
+model users {
+  id                        String                       @id @default(uuid())
+  name                      String
+  email                     String                       @unique
+  password                  String
+  created_at                DateTime                     @default(now())
+  organizationRelationships organization_relationships[]
+  projectMembers            project_members[]
+  features                  features[]
+}
+
+model organization_relationships {
+  id              String        @id @default(uuid())
+  organization_id String
+  user_id         String
+  role            Role
+  created_at      DateTime      @default(now())
+  organization    organizations @relation(fields: [organization_id], references: [id])
+  user            users         @relation(fields: [user_id], references: [id])
+}
+
+model projects {
+  id              String            @id @default(uuid())
+  name            String
+  description     String?
+  status          String?
+  start_date      DateTime          @db.Date
+  end_date        DateTime          @db.Date
+  organization_id String
+  created_at      DateTime          @default(now())
+  organization    organizations     @relation(fields: [organization_id], references: [id])
+  projectMembers  project_members[]
+  features        features[]
+}
+
+model project_members {
+  id         String   @id @default(uuid())
+  project_id String
+  user_id    String
+  role       String
+  joined_at  DateTime @default(now())
+  created_at DateTime @default(now())
+  project    projects @relation(fields: [project_id], references: [id])
+  user       users    @relation(fields: [user_id], references: [id])
+}
+
+model features {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String?
+  project_id  String
+  owner_id    String
+  target_date DateTime @db.Date
+  created_at  DateTime @default(now())
+  project     projects @relation(fields: [project_id], references: [id])
+  owner       users    @relation(fields: [owner_id], references: [id])
+}
+
+model milestones {
+  id           String    @id @default(uuid())
+  name         String
+  status       String?
+  project_id   String
+  feature_id   String
+  planned_at   DateTime  @db.Date
+  completed_at DateTime? @db.Date
+  created_at   DateTime  @default(now())
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  MEMBER
+  GUEST
+}
