@@ -40,6 +40,9 @@ Metrics are contextual: **story-point or issue-count progress must be explicitly
 
 ## Tech Stack
 
+JWT signup, login, and current-user API endpoints are implemented in the backend.
+See [API setup and authentication examples](api/README.md) to run and test them.
+
 | Layer | Technology |
 | --- | --- |
 | Frontend | React + TypeScript |

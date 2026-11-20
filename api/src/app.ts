@@ -1,14 +1,31 @@
 import express from "express";
-import { config } from "./config/config";
+import type { Express } from "express";
+import cors from "cors";
+import { config } from "./config/config.js";
+import authRouter from "./modules/auth/auth.route.js";
+import { authenticate } from "./middlewares/auth.js";
+import { errorHandler } from "./middlewares/error.js";
+import { me } from "./modules/auth/auth.controller.js";
 
-const app = express();
+export const app: Express = express();
 
-app.use(express.json());
+app.disable("x-powered-by");
+app.use(cors({ origin: config.clientOrigin }));
+app.use(express.json({ limit: "16kb" }));
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.listen(config.port, () => {
-  console.log(`${new Date()}: Server is started successfully on port ${config.port}`);
+app.use("/api/v1/auth", authRouter);
+
+app.get("/api/v1/me", authenticate, (_req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+}, me);
+
+app.use((_req, res) => {
+  res.status(404).json({ error: "Route not found" });
 });
+
+app.use(errorHandler);
