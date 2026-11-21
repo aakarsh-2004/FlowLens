@@ -1,11 +1,12 @@
 import { prisma } from "../../lib/prisma.js";
 import type { SignupInput } from "./auth.schema.js";
 
-const publicUserSelect = { id: true, name: true, email: true, created_at: true } as const;
+const publicUserSelect = { id: true, name: true, email: true, created_at: true, isAdmin: true, isActive: true } as const;
 
 export class AuthRepository {
   createUser(data: SignupInput) {
-    return prisma.users.create({ data, select: publicUserSelect });
+    const { name, email, password } = data;
+    return prisma.users.create({ data: { name, email, password }, select: publicUserSelect });
   }
 
   findByEmail(email: string) {

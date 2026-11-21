@@ -6,6 +6,8 @@ import authRouter from "./modules/auth/auth.route.js";
 import { authenticate } from "./middlewares/auth.js";
 import { errorHandler } from "./middlewares/error.js";
 import { me } from "./modules/auth/auth.controller.js";
+import { organizationsRouter } from "./modules/organizations/organizations.routes.js";
+import { projectsRouter } from "./modules/projects/projects.routes.js";
 
 export const app: Express = express();
 
@@ -18,6 +20,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/organizations", organizationsRouter);
+app.use("/api/v1/projects", projectsRouter);
 
 app.get("/api/v1/me", authenticate, (_req, res, next) => {
   res.setHeader("Cache-Control", "no-store");

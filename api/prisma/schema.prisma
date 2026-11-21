@@ -24,19 +24,23 @@ model users {
   password                  String
   created_at                DateTime                     @default(now())
   isAdmin                   Boolean                      @default(false)
+  isActive                  Boolean                      @default(true)
   organizationRelationships organization_relationships[]
   projectMembers            project_members[]
   features                  features[]
 }
 
 model organization_relationships {
-  id              String        @id @default(uuid())
-  organization_id String
-  user_id         String
-  role            String
-  created_at      DateTime      @default(now())
-  organization    organizations @relation(fields: [organization_id], references: [id])
-  user            users         @relation(fields: [user_id], references: [id])
+  id                    String        @id @default(uuid())
+  organization_id       String
+  user_id               String
+  role                  String
+  is_organization_admin Boolean       @default(false)
+  created_at            DateTime      @default(now())
+  organization          organizations @relation(fields: [organization_id], references: [id])
+  user                  users         @relation(fields: [user_id], references: [id])
+
+  @@unique([organization_id, user_id])
 }
 
 model projects {
@@ -48,9 +52,11 @@ model projects {
   end_date        DateTime          @db.Date
   organization_id String
   created_at      DateTime          @default(now())
+  isActive        Boolean           @default(true)
   organization    organizations     @relation(fields: [organization_id], references: [id])
   projectMembers  project_members[]
   features        features[]
+  milestones      milestones[]
 }
 
 model project_members {
@@ -63,19 +69,25 @@ model project_members {
   created_at   DateTime @default(now())
   project      projects @relation(fields: [project_id], references: [id])
   user         users    @relation(fields: [user_id], references: [id])
+
+  @@unique([project_id, user_id])
 }
 
 model features {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   name        String
   description String?
   status      String?
   project_id  String
   owner_id    String
-  target_date DateTime @db.Date
-  created_at  DateTime @default(now())
-  project     projects @relation(fields: [project_id], references: [id])
-  owner       users    @relation(fields: [owner_id], references: [id])
+  target_date DateTime     @db.Date
+  created_at  DateTime     @default(now())
+  isActive    Boolean      @default(true)
+  project     projects     @relation(fields: [project_id], references: [id])
+  owner       users        @relation(fields: [owner_id], references: [id])
+  milestones  milestones[]
+
+  @@unique([id, project_id])
 }
 
 model milestones {
@@ -87,6 +99,9 @@ model milestones {
   planned_at   DateTime  @db.Date
   completed_at DateTime? @db.Date
   created_at   DateTime  @default(now())
+  isActive     Boolean   @default(true)
+  project      projects  @relation(fields: [project_id], references: [id])
+  feature      features  @relation(fields: [feature_id, project_id], references: [id, project_id])
 }
 
 enum Role {

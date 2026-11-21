@@ -43,7 +43,7 @@ beforeEach(() => {
         code: "P2002", clientVersion: "7.10.1",
       });
     }
-    const record = { ...input, id: randomUUID(), created_at: new Date() };
+    const record = { ...input, id: randomUUID(), created_at: new Date(), isAdmin: false, isActive: true };
     records.set(record.email, record);
     return publicUser(record);
   });
@@ -159,11 +159,12 @@ test("signup validates fields and ignores client-supplied IDs and roles", async 
     assert.equal(typeof (await response.json()).error, "string");
   }
   assert.equal(records.size, 0);
-  const response = await post("signup", { ...account, id: "attacker", role: "ADMIN" });
+  const response = await post("signup", { ...account, id: "attacker", role: "ADMIN", isAdmin: true });
   assert.equal(response.status, 201);
   const body = await response.json();
   assert.notEqual(body.user.id, "attacker");
   assert.equal(body.user.role, undefined);
+  assert.equal(body.user.isAdmin, false);
 });
 
 test("login validation returns JSON client errors for invalid inputs", async () => {
